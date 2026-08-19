@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI — Professional Suite</title>
+    <style>
+        :root {
+            --bg-color: #05070f;
+            --surface: #0d1322;
+            --surface-card: #131d35;
+            --shadow-dark: #030408;
+            --shadow-light: #172648;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #4facfe;
+            --accent-glow: rgba(0, 242, 254, 0.3);
+            --accent-emerald: #10b981;
+            --accent-danger: #ff416c;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #1a103c 0%, var(--bg-color) 70%);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Modern 3D Glass Header */
+        .top-navbar {
+            width: 100%;
+            max-width: 950px;
+            margin-top: 15px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(19, 29, 53, 0.8), rgba(13, 19, 34, 0.9));
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 242, 254, 0.15);
+            border-radius: 16px;
+            box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .brand-title h1 {
+            margin: 0; font-size: 20px; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.8px; text-transform: uppercase;
+        }
+        .brand-title p { margin: 2px 0 0 0; font-size: 10px; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase; }
+
+        .mode-selector { display: flex; gap: 10px; }
+
+        .mode-tab {
+            background: var(--surface);
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.04);
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+        .mode-tab:hover { color: var(--accent-cyan); }
+        .mode-tab.active {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: #05070f;
+            box-shadow: 0 0 15px var(--accent-glow);
+            border: none;
+        }
+
+        /* Main Workspace Arena */
+        .workspace-container {
+            width: 100%;
+            max-width: 950px;
+            height: 570px;
+            background: var(--surface);
+            border-radius: 20px;
+            box-shadow: 15px 15px 35px var(--shadow-dark), -15px -15px 35px var(--shadow-light);
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .workspace-view { display: none; flex-direction: column; height: 100%; padding: 25px; box-sizing: border-box; overflow-y: auto; gap: 15px; }
+        .workspace-view.active { display: flex; }
+
+        label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--accent-cyan); font-weight: 800; display: block; margin-bottom: 6px; }
+
+        /* Custom Cyber Dropdown Theme */
+        .cyber-dropdown {
+            position: relative;
+            width: 100%;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .cyber-dropdown-trigger {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            background: #080c16;
+            color: var(--text-main);
+            font-size: 13px;
+            box-sizing: border-box;
+            cursor: pointer;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light), inset 2px 2px 5px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .cyber-dropdown-trigger:hover { border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-glow); }
+        .cyber-dropdown-trigger::after {
+            content: '▼';
+            font-size: 10px;
+            color: var(--accent-cyan);
+            transition: transform 0.3s;
+        }
+        .cyber-dropdown.open .cyber-dropdown-trigger::after { transform: rotate(180deg); }
+
+        .cyber-dropdown-menu {
+            position: absolute;
+            top: 108%; left: 0; right: 0;
+            background: #090e1b;
+            border: 1px solid rgba(0, 242, 254, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9), 0 0 15px rgba(0,242,254,0.15);
+            z-index: 999;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .cyber-dropdown.open .cyber-dropdown-menu { display: block; }
+        .cyber-dropdown-item {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: background 0.15s, color 0.15s;
+        }
+        .cyber-dropdown-item:hover {
+            background: linear-gradient(135deg, rgba(0,242,254,0.2), rgba(79,172,254,0.2));
+            color: var(--accent-cyan);
+            padding-left: 20px;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            background: #080c16;
+            color: var(--text-main);
+            font-size: 13px;
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light), inset 2px 2px 5px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-glow); }
+        textarea { height: 75px; resize: none; }
+
+        .file-box {
+            border: 2px dashed rgba(0, 242, 254, 0.25);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            background: #080c16;
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+        .file-box:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .file-box input { display: none; }
+
+        .cyber-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            color: #05070f;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            box-shadow: 5px 5px 12px var(--shadow-dark), -3px -3px 8px var(--shadow-light), 0 0 15px var(--accent-glow);
+            transition: all 0.2s ease;
+        }
+        .cyber-btn:hover { transform: translateY(-2px); opacity: 0.95; }
+
+        .secondary-btn {
+            background: var(--surface-card);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+            padding: 10px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 12px;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .secondary-btn:hover { background: rgba(0, 242, 254, 0.1); }
+
+        .active-arena { display: none; flex-direction: column; height: 100%; }
+        
+        .arena-header {
+            padding: 14px 20px;
+            background: var(--surface-card);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .arena-title { font-weight: 800; font-size: 14px; color: var(--accent-cyan); display: flex; align-items: center; gap: 10px; }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            white-space: pre-line;
+            background: #080c16;
+            box-shadow: inset 6px 6px 15px #020306;
+        }
+
+        .msg { padding: 14px 18px; border-radius: 14px; max-width: 82%; font-size: 13px; line-height: 1.5; box-shadow: 3px 3px 8px rgba(0,0,0,0.4); }
+        .ai-msg { background: var(--surface); border: 1px solid rgba(255,255,255,0.06); }
+        .user-msg { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: #05070f; font-weight: 700; align-self: flex-end; }
+
+        .chat-controls {
+            padding: 15px 20px;
+            background: var(--surface);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: #080c16;
+            color: white;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 44px;
+            max-height: 110px;
+            outline: none;
+            box-shadow: inset 3px 3px 6px #030408, inset -3px -3px 6px #172648;
+        }
+
+        .ctrl-btn {
+            background: var(--surface-card);
+            color: var(--text-main);
+            border: 1px solid rgba(255,255,255,0.06);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
+            transition: all 0.2s;
+        }
+        .ctrl-btn:hover { color: var(--accent-cyan); }
+        .send-btn { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue)); color: #05070f; border: none; font-weight: 800; }
+        .mic-btn { color: var(--accent-emerald); }
+        .listening { background: var(--accent-danger) !important; color: white !important; animation: pulse 1.5s infinite; }
+
+        .back-3d-btn {
+            background: linear-gradient(135deg, #0077ff, #00d2ff);
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
+            cursor: pointer;
+            box-shadow: 3px 3px 8px var(--shadow-dark), -2px -2px 6px var(--shadow-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .back-3d-btn:hover { transform: translateY(-1px); box-shadow: 0 0 10px var(--accent-glow); }
+
+        /* Game Filter & 18-Game Grid */
+        .game-filter-bar { display: flex; gap: 8px; margin-bottom: 10px; }
+        .filter-btn {
+            background: #080c16; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05);
+            padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;
+            box-shadow: 3px 3px 6px var(--shadow-dark);
+        }
+        .filter-btn.active { background: var(--accent-cyan); color: #05070f; border: none; }
+
+        .games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; overflow-y: auto; max-height: 380px; padding-right: 5px; }
+        .game-card {
+            background: #080c16; border: 1px solid rgba(255,255,255,0.05); padding: 14px; border-radius: 14px; cursor: pointer;
+            box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light); transition: all 0.25s;
+        }
+        .game-card:hover { border-color: var(--accent-cyan); transform: translateY(-3px); }
+        .game-card h4 { margin: 0 0 4px 0; color: var(--accent-cyan); font-size: 12px; font-weight: 700; }
+        .game-card p { margin: 0; font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+
+        /* Footer & Social Icons */
+        .footer-banner {
+            width: 100%; max-width: 950px; margin-bottom: 12px; padding: 12px 24px;
+            background: var(--surface); border-top: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px; box-shadow: 8px 8px 20px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
+            display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted); box-sizing: border-box;
+        }
+        .footer-info { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+        .footer-info a { color: var(--text-main); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
+        .footer-info a:hover { color: var(--accent-cyan); }
+        .footer-info svg { width: 14px; height: 14px; fill: currentColor; }
+
+        /* Unique 3D Glowing Orb Core AI Guide Logo */
+        .ai-guide-orb {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #00f2fe, #0055ff);
+            box-shadow: 0 0 15px var(--accent-cyan), inset -3px -3px 8px rgba(0,0,0,0.6);
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            animation: orbGlow 2.5s infinite ease-in-out;
+        }
+        .ai-guide-orb svg { width: 20px; height: 20px; fill: #ffffff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        @keyframes orbGlow {
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--accent-cyan); }
+            50% { transform: scale(1.08); box-shadow: 0 0 22px var(--accent-cyan), 0 0 35px var(--accent-blue); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--accent-cyan); }
+        }
+
+        /* Interactive Assistant Guide Drawer Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 7, 15, 0.85); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-card {
+            width: 480px; background: var(--surface); padding: 24px; border-radius: 20px;
+            border: 1px solid rgba(0, 242, 254, 0.3); box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; gap: 14px;
+        }
+        .modal-card h3 { margin: 0; color: var(--accent-cyan); font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .guide-chat-box {
+            height: 180px; background: #080c16; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);
+            padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 12px;
+        }
+        .guide-input-row { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Glass Navigation Bar -->
+    <div class="top-navbar">
+        <div class="brand-title">
+            <h1>Nexus AI</h1>
+            <p>Intelligence Ecosystem</p>
+        </div>
+        <div class="mode-selector">
+            <button class="mode-tab active" id="tabSpeaking" onclick="switchMode('speaking')">Speaking</button>
+            <button class="mode-tab" id="tabInterview" onclick="switchMode('mock')">Mock Interview</button>
+            <button class="mode-tab" id="tabGames" onclick="switchMode('games')">Games & Vocab</button>
+        </div>
+    </div>
+
+    <!-- Main Workspace Container -->
+    <div class="workspace-container">
+        
+        <!---------------- 1. SPEAKING VIEW ---------------->
+        <div class="workspace-view active" id="viewSpeaking">
+            <div id="speakingSetup" style="display:flex; flex-direction:column; gap:16px;">
+                <div style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <label>Voice Region</label>
+                        <div class="cyber-dropdown" id="speakingRegionCyberDropdown">
+                            <div class="cyber-dropdown-trigger" id="speakingRegionTrigger" onclick="toggleCyberDropdown('speakingRegion')">US English</div>
+                            <div class="cyber-dropdown-menu" id="speakingRegionMenu">
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingRegion', 'US', 'US English')">US English</div>
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingRegion', 'IN', 'Indian English')">Indian English</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="speakingRegion" value="US">
+                    </div>
+                    <div style="flex:1;">
+                        <label>Voice Gender</label>
+                        <div class="cyber-dropdown" id="speakingGenderCyberDropdown">
+                            <div class="cyber-dropdown-trigger" id="speakingGenderTrigger" onclick="toggleCyberDropdown('speakingGender')">Female</div>
+                            <div class="cyber-dropdown-menu" id="speakingGenderMenu">
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingGender', 'female', 'Female')">Female</div>
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingGender', 'male', 'Male')">Male</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="speakingGender" value="female">
+                    </div>
+                </div>
+                <div>
+                    <label>Select Speaking Voice</label>
+                    <div class="cyber-dropdown" id="speakingCyberDropdown">
+                        <div class="cyber-dropdown-trigger" id="speakingTrigger" onclick="toggleCyberDropdown('speaking')">Select Voice...</div>
+                        <div class="cyber-dropdown-menu" id="speakingMenu"></div>
+                    </div>
+                    <input type="hidden" id="speakingVoiceSelect">
+                </div>
+                <div>
+                    <label>AI Tone & Personality</label>
+                    <div class="cyber-dropdown" id="speakingPersonalityCyberDropdown">
+                        <div class="cyber-dropdown-trigger" id="speakingPersonalityTrigger" onclick="toggleCyberDropdown('speakingPersonality')">Friendly & Casual</div>
+                        <div class="cyber-dropdown-menu" id="speakingPersonalityMenu">
+                            <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingPersonality', 'friendly', 'Friendly & Casual')">Friendly & Casual</div>
+                            <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingPersonality', 'serious', 'Strict & Professional')">Strict & Professional</div>
+                            <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingPersonality', 'comedy', 'Humorous & Playful')">Humorous & Playful</div>
+                            <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingPersonality', 'storyteller', 'Immersive Storyteller')">Immersive Storyteller</div>
+                            <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingPersonality', 'motivator', 'High-Energy Life Coach')">High-Energy Life Coach</div>
+                            <div class="cyber-dropdown-item" onclick="selectCyberOption('speakingPersonality', 'curious', 'Inquisitive Journalist')">Inquisitive Journalist</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="speakingPersonality" value="friendly">
+                </div>
+                <button class="cyber-btn" onclick="startWorkspace('speaking')">Start Speaking Suite</button>
+            </div>
+
+            <!-- Active Speaking Arena -->
+            <div class="active-arena" id="speakingChat">
+                <div class="arena-header">
+                    <div class="arena-title">
+                        <button class="back-3d-btn" onclick="goBackSetup('speaking')">&larr; Back</button>
+                        Speaking & Conversation Arena
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="secondary-btn" style="width:auto; margin:0;" onclick="suggestTopic()">Suggest Topic</button>
+                        <button class="ctrl-btn" style="color:var(--accent-danger); border-color:rgba(255,65,108,0.3);" onclick="endWorkspace('speaking')">Stop & Review</button>
+                    </div>
+                </div>
+                <div class="chat-messages" id="speakingMessages"></div>
+                <div class="chat-controls">
+                    <textarea class="chat-textarea" id="speakingInput" placeholder="Speak or type your thoughts..."></textarea>
+                    <button class="ctrl-btn mic-btn" id="speakingMic" onclick="toggleMic('speaking')">🎤 Mic</button>
+                    <button class="ctrl-btn send-btn" onclick="sendMessage('speaking')">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!---------------- 2. MOCK INTERVIEW VIEW ---------------->
+        <div class="workspace-view" id="viewInterview">
+            <div id="interviewSetup" style="display:flex; flex-direction:column; gap:14px;">
+                <div style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <label>Voice Region</label>
+                        <div class="cyber-dropdown" id="interviewRegionCyberDropdown">
+                            <div class="cyber-dropdown-trigger" id="interviewRegionTrigger" onclick="toggleCyberDropdown('interviewRegion')">US English</div>
+                            <div class="cyber-dropdown-menu" id="interviewRegionMenu">
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('interviewRegion', 'US', 'US English')">US English</div>
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('interviewRegion', 'IN', 'Indian English')">Indian English</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="interviewRegion" value="US">
+                    </div>
+                    <div style="flex:1;">
+                        <label>Voice Gender</label>
+                        <div class="cyber-dropdown" id="interviewGenderCyberDropdown">
+                            <div class="cyber-dropdown-trigger" id="interviewGenderTrigger" onclick="toggleCyberDropdown('interviewGender')">Female</div>
+                            <div class="cyber-dropdown-menu" id="interviewGenderMenu">
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('interviewGender', 'female', 'Female')">Female</div>
+                                <div class="cyber-dropdown-item" onclick="selectCyberOption('interviewGender', 'male', 'Male')">Male</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="interviewGender" value="female">
+                    </div>
+                </div>
+                <div>
+                    <label>Selected Interviewer Voice</label>
+                    <div class="cyber-dropdown" id="interviewCyberDropdown">
+                        <div class="cyber-dropdown-trigger" id="interviewTrigger" onclick="toggleCyberDropdown('interview')">Select Voice...</div>
+                        <div class="cyber-dropdown-menu" id="interviewMenu"></div>
+                    </div>
+                    <input type="hidden" id="interviewVoiceSelect">
+                </div>
+                <div>
+                    <label>Candidate Resume</label>
+                    <textarea id="resumeText" placeholder="Paste professional experience..."></textarea>
+                    <label class="file-box">
+                        Upload Resume File (.pdf / .txt)
+                        <input type="file" id="resumeFile">
+                    </label>
+                </div>
+                <div>
+                    <label>Target Job Description</label>
+                    <textarea id="jdText" placeholder="Paste job requirements..."></textarea>
+                    <label class="file-box">
+                        Upload JD File (.pdf / .txt)
+                        <input type="file" id="jdFile">
+                    </label>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="secondary-btn" style="flex:1;" onclick="loadDemoData()">Demo Data</button>
+                    <button class="cyber-btn" style="flex:2;" onclick="startWorkspace('interview')">Launch Interview Suite</button>
+                </div>
+            </div>
+
+            <!-- Active Interview Arena -->
+            <div class="active-arena" id="interviewChat">
+                <div class="arena-header">
+                    <div class="arena-title">
+                        <button class="back-3d-btn" onclick="goBackSetup('interview')">&larr; Back</button>
+                        Professional Mock Interview Suite
+                    </div>
+                    <button class="ctrl-btn" style="color:var(--accent-danger); border-color:rgba(255,65,108,0.3);" onclick="endWorkspace('interview')">Stop & Review</button>
+                </div>
+                <div class="chat-messages" id="interviewMessages"></div>
+                <div class="chat-controls">
+                    <textarea class="chat-textarea" id="interviewInput" placeholder="Answer interview question..."></textarea>
+                    <button class="ctrl-btn mic-btn" id="interviewMic" onclick="toggleMic('interview')">🎤 Mic</button>
+                    <button class="ctrl-btn send-btn" onclick="sendMessage('interview')">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!---------------- 3. GAMES & VOCABULARY VIEW (18 Games with Filter) ---------------->
+        <div class="workspace-view" id="viewGames">
+            <div id="gameMenu" style="display:flex; flex-direction:column; gap:10px; height:100%;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="margin:0;">Interactive Games Hub</label>
+                    <span style="font-size:11px; color:var(--accent-cyan);">18 Modules</span>
+                </div>
+                <div class="game-filter-bar">
+                    <button class="filter-btn active" onclick="filterGames('all', this)">All Games</button>
+                    <button class="filter-btn" onclick="filterGames('learning', this)">Vocabulary & Learning</button>
+                    <button class="filter-btn" onclick="filterGames('fun', this)">Fun & Entertainment</button>
+                    <button class="filter-btn" onclick="filterGames('puzzle', this)">Advanced Puzzles</button>
+                </div>
+                <div class="games-grid" id="gamesGridContainer">
+                    <!-- 6 Learning Games -->
+                    <div class="game-card" data-category="learning" onclick="launchGame('fillBlanks')">
+                        <h4>1. Fill in Blanks</h4>
+                        <p>Complete professional sentences with precise syntax.</p>
+                    </div>
+                    <div class="game-card" data-category="learning" onclick="launchGame('wordScramble')">
+                        <h4>2. Word Scramble</h4>
+                        <p>Rearrange jumbled technical letters into correct spelling.</p>
+                    </div>
+                    <div class="game-card" data-category="learning" onclick="launchGame('itVocab')">
+                        <h4>3. IT Vocabulary</h4>
+                        <p>Master core tech terminology and industry definitions.</p>
+                    </div>
+                    <div class="game-card" data-category="learning" onclick="launchGame('spellingBee')">
+                        <h4>4. Spelling Bee</h4>
+                        <p>Spell engineering words accurately from context clues.</p>
+                    </div>
+                    <div class="game-card" data-category="learning" onclick="launchGame('synonymMatch')">
+                        <h4>5. Synonym Match</h4>
+                        <p>Upgrade vocabulary with executive-level corporate alternatives.</p>
+                    </div>
+                    <div class="game-card" data-category="learning" onclick="launchGame('sentenceOrder')">
+                        <h4>6. Sentence Order</h4>
+                        <p>Structure scattered words into formal documentation phrases.</p>
+                    </div>
+                    <!-- 6 Fun Games -->
+                    <div class="game-card" data-category="fun" onclick="launchGame('popRiddle')">
+                        <h4>7. Tech Riddle Quest</h4>
+                        <p>Guess programming mysteries and funny developer riddles.</p>
+                    </div>
+                    <div class="game-card" data-category="fun" onclick="launchGame('emojiStory')">
+                        <h4>8. Emoji Decathlon</h4>
+                        <p>Decode software frameworks and algorithms from emojis.</p>
+                    </div>
+                    <div class="game-card" data-category="fun" onclick="launchGame('speedTrivia')">
+                        <h4>9. Silicon Trivia</h4>
+                        <p>Fast-paced trivia on computer science history & tech trivia.</p>
+                    </div>
+                    <div class="game-card" data-category="fun" onclick="launchGame('bugHunt')">
+                        <h4>10. Bug Buster Challenge</h4>
+                        <p>Spot logic bugs and humorous code snippets instantly.</p>
+                    </div>
+                    <div class="game-card" data-category="fun" onclick="launchGame('pixelQuiz')">
+                        <h4>11. Pixel Memory</h4>
+                        <p>Test quick recall of tech shortcuts and hotkeys.</p>
+                    </div>
+                    <div class="game-card" data-category="fun" onclick="launchGame('codeSlang')">
+                        <h4>12. Dev Slang Master</h4>
+                        <p>Decode insider startup and software engineering slang.</p>
+                    </div>
+                    <!-- 6 Advanced Puzzle Games -->
+                    <div class="game-card" data-category="puzzle" onclick="launchGame('logicMatrix')">
+                        <h4>13. Logic Matrix</h4>
+                        <p>Solve timed architectural puzzles and conditional logic.</p>
+                    </div>
+                    <div class="game-card" data-category="puzzle" onclick="launchGame('syntaxArchitect')">
+                        <h4>14. Syntax Architect</h4>
+                        <p>Rebuild complex algorithmic statements under time pressure.</p>
+                    </div>
+                    <div class="game-card" data-category="puzzle" onclick="launchGame('binaryDecoder')">
+                        <h4>15. Binary Decoder</h4>
+                        <p>Translate code logic steps into logical sequence outputs.</p>
+                    </div>
+                    <div class="game-card" data-category="puzzle" onclick="launchGame('flowchartMaze')">
+                        <h4>16. Flowchart Navigator</h4>
+                        <p>Solve routing paths through nested conditional trees.</p>
+                    </div>
+                    <div class="game-card" data-category="puzzle" onclick="launchGame('regexMaster')">
+                        <h4>17. Regex Pattern Lock</h4>
+                        <p>Construct matching string patterns for data validation.</p>
+                    </div>
+                    <div class="game-card" data-category="puzzle" onclick="launchGame('memoryHeap')">
+                        <h4>18. Memory Heap Allocator</h4>
+                        <p>Manage allocation slots in restricted time constraints.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Game Arena -->
+            <div class="active-arena" id="gameArena">
+                <div class="arena-header">
+                    <div class="arena-title">
+                        <button class="back-3d-btn" onclick="exitGame()">&larr; Back</button>
+                        <span id="gameTitle">Game Arena</span>
+                    </div>
+                    <div id="gameAttemptsBadge" style="font-size:11px; color:var(--accent-emerald); font-weight:700;">Attempts left: 3</div>
+                </div>
+                <div class="chat-messages" id="gameMessages"></div>
+                <div class="chat-controls">
+                    <textarea class="chat-textarea" id="gameInput" placeholder="Type your answer or select an option..."></textarea>
+                    <button class="ctrl-btn send-btn" onclick="submitGameAnswer()">Submit Answer</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer with Original Logos & Unique 3D Glowing Orb AI Guide -->
+    <div class="footer-banner">
+        <div class="footer-info">
+            <span>Developer: <b>Buddha Ravi Teja</b></span>
+            <span><a href="javascript:void(0)" onclick="callPhone()">📞 +91 9703504923</a></span>
+            <span><a href="javascript:void(0)" onclick="openWhatsApp()" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg> WhatsApp
+            </a></span>
+            <span><a href="https://www.linkedin.com/in/raviteja-buddha-data-analyst/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg> LinkedIn
+            </a></span>
+            <span><a href="https://github.com/Kushi153" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg> GitHub
+            </a></span>
+            <span><a href="mailto:bkushirt@gmail.com">✉️ Gmail</a></span>
+        </div>
+        <!-- Unique 3D Glowing Orb Core AI Guide Icon -->
+        <div class="ai-guide-orb" onclick="openHelpModal()" title="Nexus Guide & Assistant">
+            <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13a1.5 1.5 0 0 0-1.5 1.5 1.5 1.5 0 0 0 1.5 1.5 1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-1.5-1.5m9 0a1.5 1.5 0 0 0-1.5 1.5 1.5 1.5 0 0 0 1.5 1.5 1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-1.5-1.5m-9 4v1h9v-1z"/></svg>
+        </div>
+    </div>
+
+    <!-- Interactive Assistant Guide Drawer Modal -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal-card">
+            <h3>🤖 Nexus AI Intelligent Guide & Support Desk</h3>
+            <p>Hello! I am your interactive assistant. Ask me anything about how to use the speaking suite, mock interviews, or our 18 vocabulary game modules.</p>
+            <div class="guide-chat-box" id="guideChatBox">
+                <div class="msg ai-msg">Hi Ravi! How can I help you navigate your platform today?</div>
+            </div>
+            <div class="guide-input-row">
+                <input type="text" id="guideInput" placeholder="Ask a question (e.g. How do I play games?)..." onkeydown="checkGuideEnter(event)">
+                <button class="ctrl-btn send-btn" onclick="sendGuideMessage()">Ask</button>
+            </div>
+            <button class="secondary-btn" onclick="closeHelpModal()">Close Assistant</button>
+        </div>
+    </div>
+
+    <script>
+        let availableVoices = [];
+        let currentGame = null;
+        let gameAttempts = 3;
+
+        function populateVoices() {
+            if (!('speechSynthesis' in window)) return;
+            availableVoices = window.speechSynthesis.getVoices();
+            updateSpeakingVoices();
+            updateInterviewVoices();
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = populateVoices;
+            setTimeout(populateVoices, 100);
+        }
+
+        function toggleCyberDropdown(id) {
+            const dropdown = document.getElementById(id + 'CyberDropdown');
+            document.querySelectorAll('.cyber-dropdown').forEach(d => {
+                if (d !== dropdown) d.classList.remove('open');
+            });
+            dropdown.classList.toggle('open');
+        }
+
+        function selectCyberOption(id, value, text) {
+            document.getElementById(id + 'Trigger').textContent = text;
+            document.getElementById(id).value = value;
+            document.getElementById(id + 'CyberDropdown').classList.remove('open');
+
+            if (id === 'speakingRegion' || id === 'speakingGender') {
+                updateSpeakingVoices();
+            } else if (id === 'interviewRegion' || id === 'interviewGender') {
+                updateInterviewVoices();
+            }
+        }
+
+        window.onclick = (e) => {
+            if (!e.target.closest('.cyber-dropdown')) {
+                document.querySelectorAll('.cyber-dropdown').forEach(d => d.classList.remove('open'));
+            }
+        };
+
+        function buildCyberDropdown(mode, voiceList) {
+            const trigger = document.getElementById(mode + 'Trigger');
+            const menu = document.getElementById(mode + 'Menu');
+            const hiddenInput = document.getElementById(mode + 'VoiceSelect');
+
+            menu.innerHTML = '';
+            if (voiceList.length === 0) {
+                trigger.textContent = "No standard English voices found (Using default online voice)";
+                hiddenInput.value = 0;
+                return;
+            }
+
+            hiddenInput.value = voiceList[0].index;
+            trigger.textContent = `${voiceList[0].voice.name} (${voiceList[0].voice.lang})`;
+
+            voiceList.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cyber-dropdown-item';
+                itemDiv.textContent = `${item.voice.name} (${item.voice.lang})`;
+                itemDiv.onclick = () => {
+                    trigger.textContent = itemDiv.textContent;
+                    hiddenInput.value = item.index;
+                    document.getElementById(mode + 'CyberDropdown').classList.remove('open');
+                };
+                menu.appendChild(itemDiv);
+            });
+        }
+
+        function updateSpeakingVoices() {
+            const gender = document.getElementById('speakingGender').value;
+            const region = document.getElementById('speakingRegion').value;
+
+            const filtered = [];
+            availableVoices.forEach((voice, idx) => {
+                if (!voice.lang.toLowerCase().includes('en')) return;
+
+                const nameLower = voice.name.toLowerCase();
+                const isFemale = nameLower.includes('female') || nameLower.includes('zira') || nameLower.includes('samantha') || nameLower.includes('victoria') || nameLower.includes('natural') || nameLower.includes('heera');
+                const isMale = nameLower.includes('male') || nameLower.includes('david') || nameLower.includes('mark') || nameLower.includes('george') || nameLower.includes('daniel');
+                
+                const matchGender = gender === 'female' ? (isFemale || !isMale) : (isMale || !isFemale);
+                const matchRegion = region === 'IN' ? (voice.lang.includes('IN') || nameLower.includes('india') || nameLower.includes('heera') || true) : (voice.lang.includes('US') || voice.lang.includes('GB') || nameLower.includes('united states') || nameLower.includes('zira') || nameLower.includes('david') || true);
+
+                if (matchGender && matchRegion) {
+                    filtered.push({ index: idx, voice: voice });
+                }
+            });
+
+            const targetList = filtered.length > 0 ? filtered : availableVoices.filter(v => v.lang.startsWith('en')).map((v, i) => ({ index: i, voice: v }));
+            buildCyberDropdown('speaking', targetList);
+        }
+
+        function updateInterviewVoices() {
+            const region = document.getElementById('interviewRegion').value;
+            const gender = document.getElementById('interviewGender').value;
+
+            const filtered = [];
+            availableVoices.forEach((voice, idx) => {
+                if (!voice.lang.toLowerCase().includes('en')) return;
+
+                const nameLower = voice.name.toLowerCase();
+                const isFemale = nameLower.includes('female') || nameLower.includes('zira') || nameLower.includes('kalpana') || nameLower.includes('heera');
+                const isMale = nameLower.includes('male') || nameLower.includes('david') || nameLower.includes('ravi');
+                const matchGender = gender === 'female' ? (isFemale || !isMale) : (isMale || !isFemale);
+                const matchRegion = region === 'IN' ? (voice.lang.includes('IN') || nameLower.includes('india') || true) : (voice.lang.includes('US') || voice.lang.includes('GB') || true);
+
+                if (matchRegion && matchGender) {
+                    filtered.push({ index: idx, voice: voice });
+                }
+            });
+
+            const targetList = filtered.length > 0 ? filtered : availableVoices.filter(v => v.lang.startsWith('en')).map((v, i) => ({ index: i, voice: v }));
+            buildCyberDropdown('interview', targetList);
+        }
+
+        // HARD LOCK SYSTEM TO COMPLETELY BLOCK MIC DURING AI SPEECH
+        let activeRecognition = null;
+        let isAiSpeaking = false; 
+        let silenceTimer = null;
+
+        function speakText(text, mode) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            
+            if (activeRecognition) {
+                activeRecognition.stop();
+                activeRecognition = null;
+            }
+
+            isAiSpeaking = true; // Lock down mic input completely while AI speaks
+
+            const clean = text.replace(/[*_#>`~[\]()-]/g, ' ').replace(/🔍|📋|⚡|🚀|⚠️|✅|•/g, '').trim();
+            const utterance = new SpeechSynthesisUtterance(clean);
+            
+            const selectId = mode === 'speaking' ? 'speakingVoiceSelect' : 'interviewVoiceSelect';
+            const hiddenInput = document.getElementById(selectId);
+            const vIdx = hiddenInput ? parseInt(hiddenInput.value) : 0;
+            if (!isNaN(vIdx) && availableVoices[vIdx]) {
+                utterance.voice = availableVoices[vIdx];
+            }
+
+            utterance.onend = () => {
+                isAiSpeaking = false; // Unlock only when AI finishes
+            };
+
+            utterance.onerror = () => {
+                isAiSpeaking = false;
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleMic(mode) {
+            if (isAiSpeaking) {
+                // If user clicks while AI is talking, cancel the AI voice and allow them to speak immediately
+                if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                isAiSpeaking = false;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Speech recognition not supported in this browser.");
+                return;
+            }
+
+            const inputId = mode === 'speaking' ? 'speakingInput' : 'interviewInput';
+            const micBtnId = mode === 'speaking' ? 'speakingMic' : 'interviewMic';
+            const inputField = document.getElementById(inputId);
+            const micBtn = document.getElementById(micBtnId);
+
+            if (activeRecognition) {
+                activeRecognition.stop();
+                return;
+            }
+
+            activeRecognition = new SpeechRecognition();
+            activeRecognition.continuous = true;
+            activeRecognition.interimResults = true;
+            activeRecognition.lang = 'en-US';
+
+            let baseTranscript = inputField.value ? inputField.value + " " : "";
+
+            activeRecognition.onstart = () => {
+                micBtn.classList.add('listening');
+                micBtn.textContent = "🛑 Stop";
+            };
+
+            activeRecognition.onresult = (e) => {
+                if (isAiSpeaking) {
+                    activeRecognition.stop();
+                    return;
+                }
+
+                let currentInterim = "";
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    if (e.results[i].isFinal) {
+                        baseTranscript += e.results[i][0].transcript + " ";
+                    } else {
+                        currentInterim += e.results[i][0].transcript;
+                    }
+                }
+                inputField.value = (baseTranscript + currentInterim).trim();
+
+                clearTimeout(silenceTimer);
+                silenceTimer = setTimeout(() => {
+                    if (activeRecognition) {
+                        activeRecognition.stop();
+                    }
+                }, 7000); // Gives 7 seconds of pause room before finishing
+            };
+
+            activeRecognition.onerror = (err) => {
+                console.error("Speech recognition error", err);
+                resetMicButton(micBtn);
+            };
+
+            activeRecognition.onend = () => {
+                clearTimeout(silenceTimer);
+                resetMicButton(micBtn);
+            };
+
+            activeRecognition.start();
+        }
+
+        function resetMicButton(btn) {
+            btn.classList.remove('listening');
+            btn.textContent = "🎤 Mic";
+            activeRecognition = null;
+        }
+
+        function switchMode(mode) {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            isAiSpeaking = false;
+
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.workspace-view').forEach(v => v.classList.remove('active'));
+
+            if (mode === 'speaking') {
+                document.getElementById('tabSpeaking').classList.add('active');
+                document.getElementById('viewSpeaking').classList.add('active');
+            } else if (mode === 'mock') {
+                document.getElementById('tabInterview').classList.add('active');
+                document.getElementById('viewInterview').classList.add('active');
+            } else if (mode === 'games') {
+                document.getElementById('tabGames').classList.add('active');
+                document.getElementById('viewGames').classList.add('active');
+            }
+        }
+
+        function goBackSetup(mode) {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            isAiSpeaking = false;
+            if (mode === 'speaking') {
+                document.getElementById('speakingChat').style.display = 'none';
+                document.getElementById('speakingSetup').style.display = 'flex';
+                document.getElementById('speakingMessages').innerHTML = '';
+            } else {
+                document.getElementById('interviewChat').style.display = 'none';
+                document.getElementById('interviewSetup').style.display = 'flex';
+                document.getElementById('interviewMessages').innerHTML = '';
+            }
+        }
+
+        async function startWorkspace(mode) {
+            const formData = new FormData();
+            formData.append('mode', mode);
+
+            if (mode === 'speaking') {
+                formData.append('personality', document.getElementById('speakingPersonality').value);
+                document.getElementById('speakingSetup').style.display = 'none';
+                document.getElementById('speakingChat').style.display = 'flex';
+            } else {
+                formData.append('resume_text', document.getElementById('resumeText').value);
+                formData.append('jd_text', document.getElementById('jdText').value);
+                
+                const rFile = document.getElementById('resumeFile').files[0];
+                if (rFile) formData.append('resume_file', rFile);
+
+                const jFile = document.getElementById('jdFile').files[0];
+                if (jFile) formData.append('jd_file', jFile);
+
+                document.getElementById('interviewSetup').style.display = 'none';
+                document.getElementById('interviewChat').style.display = 'flex';
+            }
+
+            try {
+                const res = await fetch('http://127.0.0.1:8000/start', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                const boxId = mode === 'speaking' ? 'speakingMessages' : 'interviewMessages';
+                document.getElementById(boxId).innerHTML += `<div class="msg ai-msg">${data.response}</div>`;
+                speakText(data.response, mode);
+            } catch (err) {
+                alert("Backend server connection failed. Ensure Uvicorn is active.");
+            }
+        }
+
+        async function sendMessage(mode) {
+            const inputId = mode === 'speaking' ? 'speakingInput' : 'interviewInput';
+            const boxId = mode === 'speaking' ? 'speakingMessages' : 'interviewMessages';
+            const text = document.getElementById(inputId).value.trim();
+
+            if (!text) return;
+
+            const box = document.getElementById(boxId);
+            box.innerHTML += `<div class="msg user-msg">${text}</div>`;
+            document.getElementById(inputId).value = "";
+            box.scrollTop = box.scrollHeight;
+
+            const personality = mode === 'speaking' ? document.getElementById('speakingPersonality').value : 'friendly';
+
+            try {
+                const res = await fetch('http://127.0.0.1:8000/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: mode, message: text, personality: personality })
+                });
+                const data = await res.json();
+
+                box.innerHTML += `<div class="msg ai-msg">${data.response}</div>`;
+                box.scrollTop = box.scrollHeight;
+                speakText(data.response, mode);
+            } catch (err) {
+                box.innerHTML += `<div class="msg ai-msg" style="color:var(--accent-danger);">Connection error.</div>`;
+            }
+        }
+
+        async function suggestTopic() {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/suggest-topic', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: 'speaking', message: '' })
+                });
+                const data = await res.json();
+                const box = document.getElementById('speakingMessages');
+                box.innerHTML += `<div class="msg ai-msg" style="border-color:var(--accent-cyan);">${data.response}</div>`;
+                box.scrollTop = box.scrollHeight;
+                speakText(data.response, 'speaking');
+            } catch (err) {}
+        }
+
+        async function endWorkspace(mode) {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            isAiSpeaking = false;
+            const boxId = mode === 'speaking' ? 'speakingMessages' : 'interviewMessages';
+            const box = document.getElementById(boxId);
+
+            try {
+                const res = await fetch('http://127.0.0.1:8000/summary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mode: mode, message: '' })
+                });
+                const data = await res.json();
+
+                box.innerHTML += `<div class="msg ai-msg" style="border:1px solid var(--accent-cyan);"><b>Performance & Mistake Analysis Report:</b><br>${data.response}</div>`;
+                box.scrollTop = box.scrollHeight;
+
+                if (confirm("Would you like to download your evaluation summary report?")) {
+                    const blob = new Blob([data.response], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${mode}_performance_report.txt`;
+                    a.click();
+                }
+            } catch (err) {
+                box.innerHTML += `<div class="msg ai-msg" style="color:var(--accent-danger);">Error generating summary.</div>`;
+            }
+        }
+
+        function loadDemoData() {
+            document.getElementById('resumeText').value = "Buddha Ravi Teja | Python, FastAPI, Machine Learning, Data Analytics, SQL, Pandas | Built advanced full-stack interactive AI suites and data dashboards.";
+            document.getElementById('jdText').value = "Looking for a Software and Data Engineer experienced in Python, backend architecture, API development, and dynamic LLM system integrations.";
+        }
+
+        const gamesBank = {
+            fillBlanks: { title: "Fill in the Blanks", q: "Complete sentence: 'As a backend developer, I need to __ asynchronous endpoints using FastAPI.'", ans: ["build", "create", "develop", "code"], options: ["A) compile", "B) build", "C) render", "D) sketch"] },
+            wordScramble: { title: "Word Scramble", q: "Unscramble IT word: <b>A T A B A S E</b> (Hint: Structured information repository)", ans: ["database"], options: ["A) databse", "B) database", "C) daatbase", "D) dtabasae"] },
+            itVocab: { title: "IT Vocabulary Master", q: "What does **JSON** stand for in web data exchange?", ans: ["javascript object notation"], options: ["A) Java Standard Object Network", "B) JavaScript Object Notation", "C) Joint Secure Object Node", "D) Java Source Open Network"] },
+            spellingBee: { title: "Spelling Bee", q: "Spell the term for 'isolating and resolving defects in computer code.'", ans: ["debugging", "debug"], options: ["A) debugging", "B) debuging", "C) debaging", "D) deppugging"] },
+            synonymMatch: { title: "Synonym Match", q: "Choose the executive professional synonym for **'fast'** when describing performance.", ans: ["rapid", "swift", "optimized", "efficient"], options: ["A) speedy", "B) rapid", "C) quick", "D) hasty"] },
+            sentenceOrder: { title: "Sentence Order", q: "Arrange correct order: 'server / start / python / uvicorn / with / the'", ans: ["start the server with python uvicorn", "uvicorn start the server with python"], options: ["A) python start uvicorn with the server", "B) start the server with python uvicorn", "C) server uvicorn start with the python", "D) uvicorn python start with server"] },
+            popRiddle: { title: "Tech Riddle Quest", q: "Riddle: 'I speak without a mouth and hear without ears. I have no body, but I come alive with wind and code.' What am I?", ans: ["echo", "software", "ai", "program"], options: ["A) Echo", "B) Speaker", "C) Microphone", "D) Router"] },
+            emojiStory: { title: "Emoji Decathlon", q: "Identify software concept from emojis: 🐍 ⚡ 🌐", ans: ["fastapi", "python web app"], options: ["A) Java Spring", "B) FastAPI", "C) React Native", "D) Docker Container"] },
+            speedTrivia: { title: "Silicon Trivia", q: "Trivia: Which programming language was created by Guido van Rossum in 1991?", ans: ["python"], options: ["A) Java", "B) C++", "C) Python", "D) JavaScript"] },
+            bugHunt: { title: "Bug Buster Challenge", q: "Find the logic flaw: 'if (x = 5)' instead of comparison. What operator checks equality in Python?", ans: ["=="], options: ["A) =", "B) ==", "C) equals", "D) IS"] },
+            pixelQuiz: { title: "Pixel Memory", q: "Which shortcut key typically formats document code in popular text editors?", ans: ["shift + alt + f", "ctrl + shift + f", "alt + f"], options: ["A) Ctrl + Alt + Delete", "B) Shift + Alt + F", "C) Ctrl + F4", "D) Esc + Enter"] },
+            codeSlang: { title: "Dev Slang Master", q: "What does 'LGTM' stand for in code review comments?", ans: ["looks good to me"], options: ["A) Let Graphics Take More", "B) Looks Good To Me", "C) Logical Global Test Method", "D) Language Grammar Test Module"] },
+            logicMatrix: { title: "Logic Matrix", q: "Puzzle: If Node A takes 2s, Node B takes 4s in sequence, what is total pipeline duration?", ans: ["6 seconds", "6s", "6"], options: ["A) 8 seconds", "B) 6 seconds", "C) 2 seconds", "D) 4 seconds"] },
+            syntaxArchitect: { title: "Syntax Architect", q: "Fix loop syntax: Complete Python loop declaration -> 'for i __ range(5):'", ans: ["in"], options: ["A) at", "B) on", "C) in", "D) within"] },
+            binaryDecoder: { title: "Binary Decoder", q: "Convert binary 8 (base 2) to decimal integer output.", ans: ["8"], options: ["A) 4", "B) 8", "C) 16", "D) 2"] },
+            flowchartMaze: { title: "Flowchart Navigator", q: "In binary trees, what node has no children? (Starts with L)", ans: ["leaf"], options: ["A) Root", "B) Leaf", "C) Branch", "D) Stem"] },
+            regexMaster: { title: "Regex Pattern Lock", q: "What anchor symbol matches the start of a string in Regular Expressions?", ans: ["^"], options: ["A) $", "B) ^", "C) *", "D) ?"] },
+            memoryHeap: { title: "Memory Heap Allocator", q: "Which LIFO data structure pops the last inserted element first?", ans: ["stack"], options: ["A) Queue", "B) Stack", "C) Array", "D) Graph"] }
+        };
+
+        function filterGames(category, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const cards = document.querySelectorAll('.game-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function launchGame(gameKey) {
+            currentGame = gamesBank[gameKey];
+            gameAttempts = 3;
+            document.getElementById('gameMenu').style.display = 'none';
+            document.getElementById('gameArena').style.display = 'flex';
+            document.getElementById('gameAttemptsBadge').innerText = `Attempts left: ${gameAttempts}`;
+            
+            const box = document.getElementById('gameMessages');
+            box.innerHTML = '';
+            document.getElementById('gameTitle').innerText = currentGame.title;
+            
+            let html = `<div class="msg ai-msg">${currentGame.q}</div>`;
+            box.innerHTML += html;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function exitGame() {
+            document.getElementById('gameArena').style.display = 'none';
+            document.getElementById('gameMenu').style.display = 'flex';
+            currentGame = null;
+        }
+
+        function submitGameAnswer() {
+            if (!currentGame) return;
+            const input = document.getElementById('gameInput');
+            const ans = input.value.trim().toLowerCase();
+            const box = document.getElementById('gameMessages');
+            if (!ans) return;
+
+            box.innerHTML += `<div class="msg user-msg">${input.value}</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+
+            let isCorrect = currentGame.ans.some(correctStr => ans.includes(correctStr));
+
+            if (isCorrect) {
+                box.innerHTML += `<div class="msg ai-msg" style="color:var(--accent-emerald);">🎉 Brilliant! Correct answer. You've mastered this module challenge!</div>`;
+                box.scrollTop = box.scrollHeight;
+            } else {
+                gameAttempts--;
+                document.getElementById('gameAttemptsBadge').innerText = `Attempts left: ${gameAttempts}`;
+                if (gameAttempts > 0) {
+                    box.innerHTML += `<div class="msg ai-msg" style="color:var(--accent-danger);">❌ Incorrect. You have ${gameAttempts} attempt(s) remaining. Try again!</div>`;
+                } else {
+                    let optHTML = `<div class="msg ai-msg" style="border-color:var(--accent-cyan);">💡 <b>Hint Options:</b><br>${currentGame.options.join('<br>')}<br><i style="font-size:10px; color:var(--text-muted);">Select the correct option above!</i></div>`;
+                    box.innerHTML += optHTML;
+                }
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+
+        function callPhone() {
+            window.location.href = "tel:+919703504923";
+        }
+
+        function openWhatsApp() {
+            const hour = new Date().getHours();
+            let greeting = "Good Morning";
+            if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+            else if (hour >= 17) greeting = "Good Evening";
+
+            const msg = encodeURIComponent(`${greeting}! Buddha Ravi Teja, I am reaching out regarding your Nexus AI platform.`);
+            window.open(`https://wa.me/919703504923?text=${msg}`, '_blank');
+        }
+
+        function openHelpModal() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+        function closeHelpModal() {
+            document.getElementById('helpModal').style.display = 'none';
+        }
+
+        function checkGuideEnter(e) {
+            if (e.key === 'Enter') sendGuideMessage();
+        }
+
+        function sendGuideMessage() {
+            const input = document.getElementById('guideInput');
+            const text = input.value.trim();
+            const box = document.getElementById('guideChatBox');
+            if (!text) return;
+
+            box.innerHTML += `<div class="msg user-msg">${text}</div>`;
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+
+            let reply = "I can help you navigate Nexus AI! You can practice conversational speaking with customizable voice tones, run mock interviews with your resume and job description, or test your skills across 18 interactive vocabulary and puzzle games.";
+            const query = text.toLowerCase();
+            if (query.includes('game') || query.includes('vocab')) {
+                reply = "We have 18 modules divided into Vocabulary Learning, Fun Challenges, and Advanced Puzzles with a 3-attempt hint engine!";
+            } else if (query.includes('interview') || query.includes('resume')) {
+                reply = "In Mock Interview mode, paste your resume or upload a file alongside the Job Description. The session begins with a mandatory Self-Introduction!";
+            } else if (query.includes('developer') || query.includes('creator') || query.includes('ravi')) {
+                reply = "This platform was engineered by Buddha Ravi Teja. You can reach him directly via the WhatsApp or phone link below!";
+            }
+
+            setTimeout(() => {
+                box.innerHTML += `<div class="msg ai-msg">${reply}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 400);
+        }
+    </script>
+</body>
+</html>
